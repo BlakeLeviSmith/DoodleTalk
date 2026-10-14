@@ -1,0 +1,7 @@
+.venv
+__pycache__/
+*.pyc
+backend/test_out
+*.log
+.DS_Store
+docs/*.zip

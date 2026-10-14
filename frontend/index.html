@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFE135">
+  <title>DoodleTalk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23FFE135' stroke='%232b2118' stroke-width='6'/><path d='M28 60 Q50 80 72 60' stroke='%232b2118' stroke-width='7' fill='none' stroke-linecap='round'/><circle cx='37' cy='40' r='6' fill='%232b2118'/><circle cx='63' cy='40' r='6' fill='%232b2118'/></svg>">
+</head>
+<body>
+  <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="48" height="48"><circle cx="50" cy="50" r="44" fill="#FFE135" stroke="#2b2118" stroke-width="6"/><path d="M30 58 Q50 78 70 58" stroke="#2b2118" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="38" cy="40" r="6" fill="#2b2118"/><circle cx="62" cy="40" r="6" fill="#2b2118"/></svg>
+      </div>
+      <div>
+        <h1>DoodleTalk</h1>
+        <p class="tagline">Draw it. See it. Say it.</p>
+      </div>
+    </div>
+    <details class="how">
+      <summary>How it works</summary>
+      <ol class="how-steps">
+        <li><span class="how-ico" aria-hidden="true">✏️</span> Your doodle</li>
+        <li><span class="how-ico" aria-hidden="true">🔎</span> CLIP guesses the word</li>
+        <li><span class="how-ico" aria-hidden="true">✨</span> SD‑Turbo redraws it (keeps your shape)</li>
+        <li><span class="how-ico" aria-hidden="true">🗣️</span> Tap to talk</li>
+      </ol>
+    </details>
+  </header>
+
+  <!-- Sentence strip -->
+  <section class="strip" aria-label="Sentence strip">
+    <div id="sentence" class="sentence" aria-live="polite" aria-label="Your sentence">
+      <span class="sentence-empty">Tap cards to build a sentence…</span>
+    </div>
+    <div class="strip-actions">
+      <button id="speakAll" class="btn btn-speak" aria-label="Speak sentence">▶ <span>Speak</span></button>
+      <button id="backspace" class="btn btn-icon" aria-label="Remove last word">⌫</button>
+      <button id="clearSentence" class="btn btn-icon" aria-label="Clear sentence">✕</button>
+    </div>
+  </section>
+
+  <main>
+    <!-- Studio -->
+    <section class="studio" aria-label="Drawing studio">
+      <div class="panel draw-panel">
+        <div class="panel-head">
+          <h2>1. Draw</h2>
+          <div class="tools-mini">
+            <button id="undo" class="btn btn-tool" aria-label="Undo last stroke">↶ <span>Undo</span></button>
+            <button id="clearCanvas" class="btn btn-tool" aria-label="Clear drawing">🗑 <span>Clear</span></button>
+          </div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="canvas" width="512" height="512" aria-label="Drawing canvas. Draw with your finger, pen or mouse." role="img"></canvas>
+          <div id="canvasHint" class="canvas-hint" aria-hidden="true">Draw something here!</div>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="Brush tools">
+          <div id="colors" class="colors" role="radiogroup" aria-label="Brush color"></div>
+          <div class="sizes" role="radiogroup" aria-label="Brush size">
+            <button class="size" data-size="6" aria-label="Thin brush" role="radio"><i style="--d:8px"></i></button>
+            <button class="size" data-size="14" aria-label="Medium brush" role="radio"><i style="--d:14px"></i></button>
+            <button class="size" data-size="26" aria-label="Thick brush" role="radio"><i style="--d:22px"></i></button>
+          </div>
+          <button id="eraser" class="btn btn-tool eraser" aria-pressed="false" aria-label="Eraser">🧽 <span>Eraser</span></button>
+        </div>
+      </div>
+
+      <div class="panel magic-panel">
+        <div class="panel-head">
+          <h2>2. Magic ✨</h2>
+          <span id="magicMeta" class="meta" aria-live="polite"></span>
+          <button id="rerollBtn" class="mini-btn" type="button" aria-label="Draw it a different way">🎲 Again</button>
+        </div>
+        <div id="magic" class="magic" aria-live="polite">
+          <img id="magicImg" alt="" hidden>
+          <div id="magicEmpty" class="magic-empty">
+            <div class="sparkle" aria-hidden="true">✨</div>
+            <p>Your picture appears here as you draw.</p>
+          </div>
+          <div class="shimmer" aria-hidden="true"></div>
+          <div id="magicWord" class="magic-word" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls under studio -->
+    <section class="controls panel" aria-label="Word and style">
+      <div class="row">
+        <h2 class="row-label" id="chipsLabel">3. Is it…</h2>
+        <div id="chips" class="chips" role="radiogroup" aria-labelledby="chipsLabel">
+          <span class="chips-empty">Start drawing and I'll guess!</span>
+        </div>
+      </div>
+      <div class="row row-split">
+        <form id="typeForm" class="type-form" autocomplete="off">
+          <label for="typeWord" class="sr-only">Type a word</label>
+          <input id="typeWord" type="text" placeholder="…or type a word" maxlength="40" enterkeyhint="go">
+          <button type="submit" class="btn btn-tool" aria-label="Use typed word">Use</button>
+        </form>
+        <div id="styles" class="styles" role="radiogroup" aria-label="Picture style">
+          <button class="style" data-style="pictogram" role="radio">🔷 <span>Pictogram</span></button>
+          <button class="style" data-style="storybook" role="radio">📖 <span>Storybook</span></button>
+          <button class="style" data-style="clay" role="radio">🧸 <span>Clay</span></button>
+          <button class="style" data-style="crayon" role="radio">🖍 <span>Crayon</span></button>
+        </div>
+      </div>
+      <button id="addBtn" class="btn btn-add" disabled>➕ Add to my board</button>
+    </section>
+
+    <!-- Talking board -->
+    <section class="board-section" aria-label="Talking board">
+      <div class="board-head">
+        <h2>My talking board</h2>
+        <button id="printBtn" class="mini-btn" type="button" aria-label="Print my board">🖨️ Print</button>
+        <ul class="legend" aria-label="Color key">
+          <li class="c-people">people</li><li class="c-actions">actions</li><li class="c-descriptors">describing</li>
+          <li class="c-things">things</li><li class="c-social">social</li><li class="c-feelings">feelings</li>
+        </ul>
+      </div>
+      <div id="board" class="board"></div>
+    </section>
+  </main>
+
+  <footer class="foot">Made with 🍌 for Banana Hacks 2026 · Runs locally: CLIP + SD‑Turbo</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
